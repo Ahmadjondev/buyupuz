@@ -14,12 +14,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from tools.generate_token import generate_token_jwt, checkToken
-from tools.notifications import sendNotification
 from tools.secure import checkAPI
 
-from user.models import User, Payment, BlacklistedToken, Verification, Invite, CashbackOrder
-from user.serializers import UserSerializer, PaymentCreateSerializer, UserUpdateSerializer, \
-    VerifySerializer, InviteSerializer, PaymentSerializer, CashbackOrderSerializer
+from user.models import User, BlacklistedToken, Verification, Invite, CashbackOrder
+from user.serializers import UserSerializer, UserUpdateSerializer, \
+    VerifySerializer, InviteSerializer, CashbackOrderSerializer
 from django.core.mail import send_mail
 
 
@@ -217,41 +216,6 @@ class UpdateUserView(APIView):
         serializer.save()
 
         return Response(serializer.data)
-
-
-class PaymentView(ListAPIView):
-    serializer_class = PaymentSerializer
-
-    def check_permissions(self, request):
-        if checkAPI(self.request.headers):
-            return Response({'detail': "Siz dasturdan tashqaridasiz"}, status=status.HTTP_400_BAD_REQUEST)
-
-    def get_queryset(self):
-        token = self.request.headers['Authorization']
-        user_id = checkToken(token)
-        if user_id == -1:
-            raise NotAuthenticated(detail="Ro'yxatdan o'tilmagan")
-        payments = Payment.objects.filter(user_id=user_id).order_by('-id')
-
-        return payments
-
-    def post(self, request):
-        token = request.headers['Authorization']
-        user_id = checkToken(token)
-        if user_id == -1:
-            raise NotAuthenticated(detail="Ro'yxatdan o'tilmagan")
-        datas = {'price': self.request.data['price'],
-                 'screenshot': self.request.data['screenshot'],
-                 'user': user_id}
-        serializer = PaymentCreateSerializer(data=datas)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        try:
-            sendNotification("/topics/admin", f"To`lov qilindi",
-                             f"Foydalanuvchi to`lov qildi va hozir siz tasdiqlashingiz kerak")
-        except:
-            pass
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class InviteStatView(APIView):

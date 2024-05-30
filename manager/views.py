@@ -6,13 +6,15 @@ from django.db.models import Sum
 from django.utils import timezone
 
 from game.models import Order
-from game.serializers import OrderSerializer, OrderListSerializer
 from manager.models import Manager
 from manager.serializers import ManagerSerializer
+from order.serializers import OrderSerializer, OrderListSerializer
+from payment.models import Payment
+from payment.serializers import PaymentSerializer, PaymentCreateSerializer
 from tools.notifications import sendNotification
 from tools.secure import checkAPI
-from user.models import Payment, User, Invite
-from user.serializers import PaymentSerializer, UserSerializer, PaymentCreateSerializer, \
+from user.models import User, Invite
+from user.serializers import UserSerializer, \
     InviteSerializer
 from rest_framework import status
 from rest_framework.exceptions import AuthenticationFailed
@@ -26,7 +28,7 @@ class CheckPaymentView(APIView):
     def check_permissions(self, request):
         if checkAPI(self.request.headers):
             raise AuthenticationFailed(detail="Siz dasturdan tashqaridasiz")
-        admin_id = checkToken(request.headers['Authorization'])
+        admin_id = checkTokenManager(request.headers['Authorization'])
         if admin_id == -1:
             self.permission_denied(self.request)
 
@@ -53,7 +55,7 @@ class CheckPaymentView(APIView):
         json['status'] = int(request.data['status'])
         json['price'] = pay
         json['comment'] = comment
-        json['by_admin'] = checkToken(request.headers['Authorization'])
+        json['by_admin'] = checkTokenManager(request.headers['Authorization'])
         serializer_pay = PaymentCreateSerializer(payment, data=json)
         serializer_pay.is_valid(raise_exception=True)
         serializer_pay.save()
@@ -74,7 +76,7 @@ class CheckOrderView(APIView):
     def check_permissions(self, request):
         if checkAPI(self.request.headers):
             raise AuthenticationFailed(detail="Siz dasturdan tashqaridasiz")
-        admin_id = checkToken(request.headers['Authorization'])
+        admin_id = checkTokenManager(request.headers['Authorization'])
         if admin_id == -1:
             self.permission_denied(self.request)
 
@@ -85,7 +87,7 @@ class CheckOrderView(APIView):
         order_json = dict(model_to_dict(order))
         if int(order_json['status']) != 0:
             return Response({'detail': "Buyurtma allaqachon amalga oshirilgan"}, status=status.HTTP_400_BAD_REQUEST)
-        admin_id = checkToken(request.headers['Authorization'])
+        admin_id = checkTokenManager(request.headers['Authorization'])
         order_json['status'] = order_status
         order_json['by_admin'] = admin_id
         print(order_json)
@@ -142,12 +144,12 @@ class PaymentListView(ListAPIView):
     def check_permissions(self, request):
         if checkAPI(self.request.headers):
             raise AuthenticationFailed(detail="Siz dasturdan tashqaridasiz")
-        admin_id = checkToken(request.headers['Authorization'])
+        admin_id = checkTokenManager(request.headers['Authorization'])
         if admin_id == -1:
             self.permission_denied(self.request)
 
     def get_queryset(self):
-        today = timezone.now() 
+        today = timezone.now()
         current_month_start = today - timedelta(days=2)
         queryset = Payment.objects.filter(created_at__range=(current_month_start, today)).order_by(
             '-created_at')
@@ -186,7 +188,7 @@ class OrderListView(ListAPIView):
     def check_permissions(self, request):
         if checkAPI(self.request.headers):
             raise AuthenticationFailed(detail="Siz dasturdan tashqaridasiz")
-        admin_id = checkToken(request.headers['Authorization'])
+        admin_id = checkTokenManager(request.headers['Authorization'])
         if admin_id == -1:
             self.permission_denied(self.request)
 
@@ -239,7 +241,7 @@ class GetAdmin(APIView):
 
     def get(self, request):
         token = self.request.headers['Authorization']
-        admin_id = checkToken(token)
+        admin_id = checkTokenManager(token)
         if admin_id == -1:
             return Response({'detail': "Admin eskirgan"}, status=status.HTTP_400_BAD_REQUEST)
         man = Manager.objects.filter(id=int(admin_id)).first()
@@ -253,7 +255,7 @@ class Statics(APIView):
     def check_permissions(self, request):
         if checkAPI(self.request.headers):
             raise AuthenticationFailed(detail="Siz dasturdan tashqaridasiz")
-        admin_id = checkToken(request.headers['Authorization'])
+        admin_id = checkTokenManager(request.headers['Authorization'])
         if admin_id == -1:
             self.permission_denied(self.request)
 
@@ -308,6 +310,6 @@ class UsersBalance(APIView):
         return Response({'total': total_balance})
 
 
-def checkToken(token):
+def checkTokenManager(token):
     code = jwt.decode(token, 'manager_secret_key', algorithms='HS256')
     return int(code['id'])

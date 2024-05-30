@@ -6,9 +6,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-t86+cu9i8(glpq_-n&ro0yvskj)32+5ls%7tg8ef*x0*oi_jzz'
 
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ["mobile.buyup.uz"]
+ALLOWED_HOSTS = ["*", "mobile.buyup.uz"]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -24,7 +24,9 @@ INSTALLED_APPS = [
     'user',
     'app',
     'game',
-    'manager'
+    'manager',
+    'order',
+    'payment'
 ]
 
 MIDDLEWARE = [
