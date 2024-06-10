@@ -3,7 +3,7 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
+
 SECRET_KEY = 'django-insecure-t86+cu9i8(glpq_-n&ro0yvskj)32+5ls%7tg8ef*x0*oi_jzz'
 
 DEBUG = False
@@ -124,6 +124,6 @@ EMAIL_HOST_USER = "buyupuz@gmail.com"
 EMAIL_HOST_PASSWORD = "fxjudtbynsascgra"
 
 CRONJOBS = [
-    ('0 9 * * *', 'admin.apis.statics.send_statics'),
-    ('0 21 * * *', 'admin.apis.statics.send_statics')
+    ('0 11 * * *', 'manager.apis.statics.send_statics'),
+    ('0 23 * * *', 'manager.apis.statics.send_statics'),
 ]
