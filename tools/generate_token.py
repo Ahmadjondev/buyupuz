@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 import jwt
 
+from manager.models import Manager
 from user.models import BlacklistedToken
 
 
@@ -13,6 +14,15 @@ def generate_token_jwt(user_id):
     }
     token = jwt.encode(payload, 'secret', algorithm='HS256')
     return token
+
+
+def check_token_manager(token):
+    code = jwt.decode(token, 'manager_secret_key', algorithms='HS256')
+    try:
+        Manager.objects.get(id=int(code['id']))
+        return int(code['id'])
+    except:
+        return -1
 
 
 def checkToken(token):

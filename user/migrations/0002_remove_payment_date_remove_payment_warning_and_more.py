@@ -10,24 +10,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='payment',
-            name='date',
-        ),
-        migrations.RemoveField(
-            model_name='payment',
-            name='warning',
-        ),
-        migrations.AlterField(
-            model_name='payment',
-            name='created_at',
-            field=models.DateTimeField(auto_now_add=True),
-        ),
-        migrations.AlterField(
-            model_name='payment',
-            name='updated_at',
-            field=models.DateTimeField(auto_now=True),
-        ),
+
         migrations.AlterField(
             model_name='user',
             name='created_at',

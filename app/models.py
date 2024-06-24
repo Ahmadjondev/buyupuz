@@ -40,6 +40,12 @@ class Working(models.Model):
     end_time = models.CharField(max_length=30, null=True)  # 07:00
     status = models.BooleanField(null=True)
     comment = models.CharField(max_length=255, null=True)
+    is_payment = models.BooleanField(default=False)
+    is_technical = models.BooleanField(default=False)
+    is_partner = models.BooleanField(default=False)
+    partner_comment = models.CharField(max_length=300, null=True, blank=True)
+    partner_link = models.CharField(max_length=255, null=True, blank=True)
+    partner_button = models.CharField(max_length=55, null=True, blank=True)
 
     def __str__(self):
         return f"{self.start_time}: {self.end_time}"

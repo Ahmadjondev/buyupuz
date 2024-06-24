@@ -3,8 +3,9 @@ from django.urls import path
 from .apis.apps_buyup import CarouselCreateView, RedeemCreateView, NotificationCreateView, RedeemListView, \
     CarouselDeleteView
 from .apis.cashback import CheckCashback
-from .apis.games import GameUpdateView, CreateGameView, GameDeleteView, ListGameView
+from .apis.games import GameUpdateView, CreateGameView, GameDeleteView, GamesAdminView
 from .apis.items import CreateItemView, ItemDeleteView, ItemUpdateView, ListItemView
+from .apis.statics import OrderStatisticsView, SendNotification
 from .apis.users import GiveWarningView, UserListView
 from .views import CheckOrderView, CheckPaymentView, PaymentListView, OrderListView, Login, UsersBalance, GetAdmin, \
     Statics
@@ -28,7 +29,7 @@ urlpatterns = [
     path('users', UserListView.as_view()),
 
     # games.py
-    path('games', ListGameView.as_view()),
+    path('games', GamesAdminView.as_view()),
     path('games/create', CreateGameView.as_view()),
     path('games/update/<int:pk>', GameUpdateView.as_view()),
     path('games/delete/<int:pk>', GameDeleteView.as_view()),
@@ -47,4 +48,7 @@ urlpatterns = [
     path('carousels/delete/<int:pk>', CarouselDeleteView.as_view()),
 
     path('users/balance', UsersBalance.as_view()),
+
+    path('order/statics', OrderStatisticsView.as_view()),
+    path('notif', SendNotification.as_view())
 ]

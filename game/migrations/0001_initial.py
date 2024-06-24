@@ -37,17 +37,5 @@ class Migration(migrations.Migration):
                 ('game', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='game.game')),
             ],
         ),
-        migrations.CreateModel(
-            name='Order',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('game_number', models.CharField(max_length=255)),
-                ('status', models.SmallIntegerField(default=0)),
-                ('created_at', models.DateField(auto_now_add=True)),
-                ('updated_at', models.DateField(auto_now=True)),
-                ('game', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='game.game')),
-                ('order', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='game.item')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='user.user')),
-            ],
-        ),
+
     ]

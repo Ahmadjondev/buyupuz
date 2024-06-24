@@ -10,10 +10,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='payment',
-            name='by_admin',
-        ),
+
         migrations.AddField(
             model_name='cashbackorder',
             name='created_at',

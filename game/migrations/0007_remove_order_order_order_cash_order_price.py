@@ -10,18 +10,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='order',
-            name='order',
-        ),
-        migrations.AddField(
-            model_name='order',
-            name='cash',
-            field=models.CharField(default='0', max_length=20),
-        ),
-        migrations.AddField(
-            model_name='order',
-            name='price',
-            field=models.CharField(default='0.00', max_length=20),
-        ),
+
     ]

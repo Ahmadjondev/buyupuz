@@ -4,10 +4,13 @@ from rest_framework.exceptions import NotAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from game.models import Game
+from game.serializers import GameSerializer
+from manager.models import Manager
 from order.models import Order
 from order.serializers import OrderListSerializer, OrderSerializer
 from tools.generate_token import checkToken
-from tools.notifications import sendNotification
+from tools.notifications import send_notification_v2
 from tools.secure import checkAPI
 from user.models import User
 from user.serializers import UserSerializer
@@ -37,9 +40,18 @@ class CreateOrderView(APIView):
         serializer = OrderSerializer(data=json)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+
         try:
-            sendNotification("/topics/admin", f"Buyurtma #{10000 + serializer.data['id']}",
-                             f"Narxi: {json['price']}, Donat: {json['cash']}", serializer.data)
+            print(json)
+            game = Game.objects.get(id=json['game'])
+            game_serializer = model_to_dict(game)
+
+            manager = Manager.objects.get(id=game_serializer['manager'])
+            manager_json = model_to_dict(manager)
+            fcm_token = manager_json['notification_token']
+            send_notification_v2(token=fcm_token, title=f"Buyurtma #{10000 + serializer.data['id']}",
+                                 msg=f"Narxi: {json['price']}, Donat: {json['cash']}", data=serializer.data,
+                                 is_order_or_payment=True)
         except:
             pass
         return Response(serializer.data)

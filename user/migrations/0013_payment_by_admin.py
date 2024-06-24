@@ -12,9 +12,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='payment',
-            name='by_admin',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='manager.manager'),
-        ),
+
     ]

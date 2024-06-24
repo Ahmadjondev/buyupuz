@@ -8,7 +8,7 @@ class ListGameView(generics.ListAPIView):
     serializer_class = GameSerializer
 
     def get_queryset(self):
-        return Game.objects.filter(visible=True, is_archived=False).order_by('id')
+        return Game.objects.filter(visible=True).order_by('id')
 
 
 class ListItemView(generics.ListAPIView):
@@ -17,5 +17,5 @@ class ListItemView(generics.ListAPIView):
     def get_queryset(self):
         game_id = self.request.query_params.get('game_id')
         if game_id:
-            return Item.objects.filter(game=game_id, visible=True, is_archived=False).order_by('price')
+            return Item.objects.filter(game=game_id, visible=True).order_by('price')
         raise NotAuthenticated("Xatolik")

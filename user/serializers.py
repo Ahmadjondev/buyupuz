@@ -74,6 +74,11 @@ class InviteSerializer(serializers.ModelSerializer):
         model = Invite
         fields = ('id', 'user', 'cashback', 'code', 'statics')
 
+    def create(self, validated_data):
+        invite = Invite.objects.create(**validated_data)
+        print(invite)
+        return invite
+
     def update(self, instance, validated_data):
         instance.cashback = validated_data.get('cashback', instance.cashback)
         instance.save()

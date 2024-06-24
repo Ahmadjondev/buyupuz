@@ -6,7 +6,6 @@ from rest_framework.response import Response
 from payment.models import Payment
 from payment.serializers import PaymentSerializer, PaymentCreateSerializer
 from tools.generate_token import checkToken
-from tools.notifications import sendNotification
 from tools.secure import checkAPI
 
 
@@ -38,8 +37,8 @@ class PaymentView(ListAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         try:
-            sendNotification("/topics/admin", f"To`lov qilindi",
-                             f"Foydalanuvchi to`lov qildi va hozir siz tasdiqlashingiz kerak")
+            send_notification_v2("admin", f"To`lov qilindi",
+                                 f"Foydalanuvchi to`lov qildi va hozir siz tasdiqlashingiz kerak")
         except:
             pass
         return Response(serializer.data, status=status.HTTP_201_CREATED)

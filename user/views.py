@@ -257,7 +257,8 @@ class InviteCreateView(APIView):
 
             data = {
                 'user': user_id,
-                'code': random_code
+                'code': random_code,
+                'cashback': 0.00
             }
             serializer = InviteSerializer(data=data)
             serializer.is_valid(raise_exception=True)

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from user.models import User, PaymentOld, Verification, Invite, CashbackOrder
+from user.models import User, Verification, Invite, CashbackOrder
 
 
 # Register your models here.
@@ -16,10 +16,10 @@ class UsersAdmin(admin.ModelAdmin):
     search_fields = ('name', 'email')
 
 
-@admin.register(PaymentOld)
-class PaymentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'price', 'created_at', 'status')
-    search_fields = ('user__name', 'price', 'created_at', 'status')
+# @admin.register(PaymentOld)
+# class PaymentAdmin(admin.ModelAdmin):
+#     list_display = ('id', 'user', 'price', 'created_at', 'status')
+#     search_fields = ('user__name', 'price', 'created_at', 'status')
 
 
 @admin.register(Invite)
