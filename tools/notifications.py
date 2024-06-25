@@ -1,7 +1,22 @@
 import requests
 
 
-def sendNotification(token, title, msg, data=None):
+def sendNotification(token, title, msg, data=None,is_admin=None):
+    try:
+        if is_admin:
+            bot_token = "7044795068:AAEv-d3QXACY_qnr_PAqagOnKgSpHdIfep4"
+            chat_id = "6664784902"
+            api_url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
+            requests.post(
+                api_url,
+                data={
+                    'chat_id': chat_id,
+                    'text': f"{title}\n{msg}",
+                    'parse_mode': 'Markdown',
+                },
+            )
+    except:
+        pass
     try:
         notification_payload = {
             "to": token,

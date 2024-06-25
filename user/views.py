@@ -248,7 +248,7 @@ class PaymentView(ListAPIView):
         serializer.save()
         try:
             sendNotification("/topics/admin", f"To`lov qilindi",
-                             f"Foydalanuvchi to`lov qildi va hozir siz tasdiqlashingiz kerak")
+                             f"Foydalanuvchi to`lov qildi va hozir siz tasdiqlashingiz kerak",is_admin=True)
         except:
             pass
         return Response(serializer.data, status=status.HTTP_201_CREATED)

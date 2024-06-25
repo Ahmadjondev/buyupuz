@@ -53,7 +53,7 @@ class CreateOrderView(APIView):
         serializer.save()
         try:
             sendNotification("/topics/admin", f"Buyurtma #{10000 + serializer.data['id']}",
-                             f"Narxi: {json['price']}, Donat: {json['cash']}", serializer.data)
+                             f"Narxi: {json['price']}, Donat: {json['cash']}", serializer.data,is_admin=True)
         except:
             pass
         return Response(serializer.data)

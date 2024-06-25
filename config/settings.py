@@ -124,6 +124,6 @@ EMAIL_HOST_USER = "buyupuz@gmail.com"
 EMAIL_HOST_PASSWORD = "fxjudtbynsascgra"
 
 CRONJOBS = [
-    ('0 11 * * *', 'manager.apis.statics.send_statics'),
-    ('0 23 * * *', 'manager.apis.statics.send_statics'),
+    ('0 9 * * *', 'manager.apis.statics.send_statics'),
+    ('0 21 * * *', 'manager.apis.statics.send_statics'),
 ]
