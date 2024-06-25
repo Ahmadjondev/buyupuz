@@ -5,5 +5,6 @@
 
 venv
 media
+config/firebase-admin.json
 
 .idea

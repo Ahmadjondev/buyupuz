@@ -46,6 +46,11 @@ class RestTimeSerializer(serializers.ModelSerializer):
         instance.end_time = validated_data.get('end_time', instance.end_time)
         instance.status = validated_data.get('status', instance.status)
         instance.comment = validated_data.get('comment', instance.comment)
+        instance.is_payment = validated_data.get('is_payment', instance.is_payment)
+        instance.is_technical = validated_data.get('is_technical', instance.is_technical)
+        instance.is_partner = validated_data.get('is_partner', instance.is_partner)
+        instance.partner_link = validated_data.get('partner_link', instance.partner_link)
+        instance.partner_button = validated_data.get('partner_button', instance.partner_button)
         instance.save()
         return instance
 

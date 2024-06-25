@@ -49,18 +49,5 @@ class Migration(migrations.Migration):
                 ('expired_date', models.SmallIntegerField(default=180)),
             ],
         ),
-        migrations.CreateModel(
-            name='Payment',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('price', models.DecimalField(decimal_places=2, max_digits=16)),
-                ('date', models.DateTimeField(auto_now=True)),
-                ('status', models.SmallIntegerField(default=0)),
-                ('screenshot', models.ImageField(upload_to='payment_screenshots/')),
-                ('created_at', models.DateField(auto_now_add=True)),
-                ('warning', models.SmallIntegerField(blank=True, default=0)),
-                ('updated_at', models.DateField(auto_now=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='user.user')),
-            ],
-        ),
+
     ]

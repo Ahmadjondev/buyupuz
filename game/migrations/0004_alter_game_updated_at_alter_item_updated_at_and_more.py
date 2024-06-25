@@ -20,14 +20,5 @@ class Migration(migrations.Migration):
             name='updated_at',
             field=models.DateTimeField(auto_now=True),
         ),
-        migrations.AlterField(
-            model_name='order',
-            name='created_at',
-            field=models.DateTimeField(auto_now_add=True),
-        ),
-        migrations.AlterField(
-            model_name='order',
-            name='updated_at',
-            field=models.DateTimeField(auto_now=True),
-        ),
+
     ]

@@ -1,12 +1,10 @@
 import os
 
-from django.db.models import Sum
 from rest_framework.generics import DestroyAPIView, ListAPIView, CreateAPIView
-from rest_framework.response import Response
 
 from app.models import Carousel, Redeem, Notification
 from app.serializers import CarouselSerializer, RedeemSerializer, NotificationSerializer, RedeemListSerializer
-from tools.notifications import sendNotification
+from tools.notifications import send_notification_v2
 
 
 class CarouselCreateView(CreateAPIView):
@@ -21,10 +19,12 @@ class NotificationCreateView(CreateAPIView):
     def perform_create(self, serializer):
         try:
             data = serializer.data
-            sendNotification('/topics/admin', data['title'], data['description'], data=data)
+            # sendNotification('/topics/admin', data['title'], data['description'], data=data)
+            send_notification_v2(topic='news', title=data['title'], msg=data['description'], data=data)
             print(serializer.data)
         except:
             pass
+        return serializer.save()
 
 
 class RedeemCreateView(CreateAPIView):

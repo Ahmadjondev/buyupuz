@@ -11,19 +11,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='payment',
-            name='by_admin',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='by_admin', to='user.user'),
-        ),
-        migrations.AddField(
-            model_name='payment',
-            name='comment',
-            field=models.CharField(blank=True, max_length=500, null=True),
-        ),
-        migrations.AlterField(
-            model_name='payment',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='user', to='user.user'),
-        ),
+
     ]

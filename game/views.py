@@ -1,23 +1,14 @@
-import jwt
-from django.forms import model_to_dict
-from rest_framework import generics, status
+from rest_framework import generics
 from rest_framework.exceptions import NotAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
-
-from tools.notifications import sendNotification
-from tools.secure import checkAPI
-from user.models import User, BlacklistedToken
-from user.serializers import UserSerializer
-from .models import Game, Item, Order
-from .serializers import GameSerializer, ItemSerializer, OrderSerializer, OrderListSerializer
+from .models import Game, Item
+from .serializers import GameSerializer, ItemSerializer
 
 
 class ListGameView(generics.ListAPIView):
     serializer_class = GameSerializer
 
     def get_queryset(self):
-        return Game.objects.filter(visible=True, is_archived=False).order_by('id')
+        return Game.objects.filter(visible=True).order_by('id')
 
 
 class ListItemView(generics.ListAPIView):
@@ -26,8 +17,9 @@ class ListItemView(generics.ListAPIView):
     def get_queryset(self):
         game_id = self.request.query_params.get('game_id')
         if game_id:
-            return Item.objects.filter(game=game_id, visible=True, is_archived=False).order_by('price')
+            return Item.objects.filter(game=game_id, visible=True).order_by('price')
         raise NotAuthenticated("Xatolik")
+<<<<<<< HEAD
 
 
 class CreateOrderView(APIView):
@@ -78,3 +70,5 @@ class ListOrderView(generics.ListAPIView):
         if user_id == -1:
             raise NotAuthenticated(detail="Ro'yxatdan o'tilmagan")
         return Order.objects.filter(user=user_id).order_by('-id')
+=======
+>>>>>>> 83f02bf1d5895129ed3daf81fc240ce14f987684

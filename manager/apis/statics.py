@@ -1,91 +1,96 @@
-from django.db.models import Sum
+from django.utils import timezone
 from datetime import datetime, timedelta
 
-from game.models import Order
-from user.models import User
-import requests
+from rest_framework.exceptions import NotAuthenticated
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.db.models import Sum, Avg, Count
+from order.models import Order
+from django.utils.dateparse import parse_date
+from django.db.models.functions import TruncDate
+
+from order.serializers import OrderSerializer, OrderListSerializer
+from tools.generate_token import check_token_manager
+from tools.notifications import send_notification_v2
 
 
-def format_currency(amount):
-    integer_part, fractional_part = str(amount).split('.')
-    integer_part_formatted = ' '.join(integer_part[::-1][i:i + 3] for i in range(0, len(integer_part), 3))[::-1]
-
-    formatted_amount = f"{integer_part_formatted}.{fractional_part}"
-
-    return formatted_amount
+class SendNotification(APIView):
+    def get(self, request):
+        send_notification_v2(topic='admin', title='BuyUp', msg="FCM V2 Testing")
+        return Response()
 
 
-def send_statics():
-    try:
-        time = datetime.now()
-        formatted_date = time.strftime("%d.%m.%Y %H:%M UTC%z")
-        users = User.objects.all()
-        users_count = users.count()
-        today_date_start = time.replace(hour=0, minute=0, second=1, microsecond=0)
-        today_date_end = time.replace(hour=23, minute=59, second=59, microsecond=59)
-        current_month_start = time.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        current_month_end = (current_month_start + timedelta(days=32)).replace(day=1, microsecond=0)
+class OrderStatisticsView(APIView):
+    def get(self, request):
+        auth_token = self.request.headers['Authorization']
+        admin_id = check_token_manager(auth_token)
+        if admin_id == -1:
+            raise NotAuthenticated(detail="Ro'yxatdan o'tilmagan")
+        start_date = request.query_params.get('start_date')
+        end_date = request.query_params.get('end_date')
+        game_id = request.query_params.get('game_id')
+        user_id = request.query_params.get('user_id')
+        order_status = request.query_params.get('status')
+        today = timezone.now()
 
-        today_users_count = users.filter(created_at__range=(today_date_start, today_date_end)).count()
-        orders = Order.objects.all()
-        orders_count = orders.count()
-        orders_month = orders.filter(status=1, created_at__range=(current_month_start, current_month_end))
-        orders_month_count = orders_month.count()
-        orders_today = orders_month.filter(created_at__range=(today_date_start, today_date_end))
-        orders_today_count = orders_today.count()
-        orders_today_amount = orders_today.aggregate(Sum('price'))['price__sum'] or 0
+        current_month_start = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        current_month_end = (current_month_start + timezone.timedelta(days=32)).replace(day=1, microsecond=0)
 
-        text = f'''Bugungi statistika 
+        orders = Order.objects.filter(created_at__range=[current_month_start, current_month_end])
 
-📅 Sana: {formatted_date}
+        if start_date and end_date:
+            orders = Order.objects.filter(created_at__range=[parse_date(start_date), parse_date(end_date)])
 
-👤 Jami foydalanuvchilar soni:   {users_count} ta
-👤 Bugun qo'shilgan foydalanuvchilar soni:  {today_users_count} ta
+        if game_id:
+            orders = orders.filter(game__id=game_id)
 
-📦 Jami buyurtmalar soni: {orders_count} ta 
-📦 Bu oydagi buyurtmalar soni:   {orders_month_count} ta
-📦 Bugungi buyurtmalar soni: {orders_today_count} ta
-💵 Bugungi pul aylanmasi: {format_currency(orders_today_amount)} so'm'''
+        if user_id:
+            orders = orders.filter(manager__id=admin_id)
 
-        bot_token = "6769633037:AAEHXLIzsEVrTVxPfJKhYmzYvWz6x1_mbOI"
-        chat_id = "-1002039386599"
-        # send message to admin group
-        api_url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
-        response = requests.post(
-            api_url,
-            data={
-                'chat_id': chat_id,
-                'text': text,
-                'parse_mode': 'Markdown',
+        if order_status is not None:
+            orders = orders.filter(status=order_status)
+        total_revenue = orders.aggregate(total_revenue=Sum('price'))['total_revenue']
+        total_count = orders.count()
+        average_order_value = orders.aggregate(avg_order_value=Avg('price'))['avg_order_value']
+        total_orders = orders.aggregate(total_orders=Count('id'))['total_orders']
+
+        revenue_by_game = orders.values('game__name').annotate(total_revenue=Sum('price')).order_by('-total_revenue')
+        orders_count_by_date = orders.annotate(
+            date=TruncDate('created_at')).values('date').annotate(
+            count=Count('id')).order_by('date')
+        top_selling_games = orders.values('game__name').annotate(total_quantity=Count('id')).order_by('-total_quantity')
+
+        # today orders income
+        today_date_start = today.replace(hour=0, minute=0, second=0, microsecond=0)
+        today_date_end = today.replace(hour=23, minute=59, second=59, microsecond=59)
+        today_pay = orders.filter(created_at__range=(today_date_start, today_date_end))
+        today_amount = today_pay.filter(status=1).aggregate(Sum('price'))['price__sum'] or 0
+        today_waiting_amount = today_pay.filter(status=0).aggregate(Sum('price'))['price__sum'] or 0
+        today_count = today_pay.count()
+        waiting = orders.filter(status=0).count()
+        success = orders.filter(status=1).count()
+        reject = orders.filter(status=2).count()
+        data = {
+            'total': {
+                'amount': total_revenue,
+                'count': total_count,
             },
-        )
-        result = response.json()
-        pin_url = f'https://api.telegram.org/bot{bot_token}/pinChatMessage'
-        requests.post(
-            pin_url,
-            data={
-                'chat_id': chat_id,
-                'message_id': result['result']['message_id'],
+            'today': {
+                'amount': today_amount,
+                'waiting_amount': today_waiting_amount,
+                'count': today_count,
             },
-        )
-    except:
-        bot_token = "6769633037:AAEHXLIzsEVrTVxPfJKhYmzYvWz6x1_mbOI"
-        chat_id = "-1002039386599"
-        # send message to admin group
-        api_url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
-        respon = requests.post(
-            api_url,
-            data={
-                'chat_id': chat_id,
-                'text': text,
-                'parse_mode': 'Markdown',
+            'status': {
+                'waiting': waiting,
+                'success': success,
+                'reject': reject,
             },
-        )
-        respons = requests.post(
-            api_url,
-            data={
-                'chat_id': chat_id,
-                'text': "BUGGGG",
-                'parse_mode': 'Markdown',
-            },
-        )
+            'average_order_value': average_order_value,
+            'total_orders': total_orders,
+            'revenue_by_game': list(revenue_by_game),
+            'orders_count_by_date': list(orders_count_by_date),
+            'top_selling_games': list(top_selling_games),
+        }
+
+        return Response(data, status=status.HTTP_200_OK)

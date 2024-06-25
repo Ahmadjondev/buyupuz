@@ -1,14 +1,18 @@
 import os
 from pathlib import Path
 
+import firebase_admin
+from firebase_admin import credentials
+from google.cloud import client
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 SECRET_KEY = 'django-insecure-t86+cu9i8(glpq_-n&ro0yvskj)32+5ls%7tg8ef*x0*oi_jzz'
 
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ["mobile.buyup.uz"]
+ALLOWED_HOSTS = ["*", "test.buyup.uz"]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -24,7 +28,9 @@ INSTALLED_APPS = [
     'user',
     'app',
     'game',
-    'manager'
+    'manager',
+    'order',
+    'payment',
 ]
 
 MIDDLEWARE = [
@@ -64,13 +70,22 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'buyupuz',
+        'NAME': 'buyuptest',
         'USER': 'ahmadjon',
         'PASSWORD': '20040711',
         'HOST': 'localhost',
         'PORT': '5432',
     }
 }
+
+# Option 1: Set environment variable for service account credentials
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "config/firebase-admin.json"
+
+# Option 2: Set environment variable for project ID
+os.environ["GOOGLE_CLOUD_PROJECT"] = "buyupuz"
+
+# Initialize the Cloud Messaging client
+client1 = client.Client()
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -100,6 +115,9 @@ TIME_ZONE = 'Asia/Tashkent'
 USE_I18N = True
 
 USE_TZ = True
+
+cred = credentials.Certificate("config/firebase-admin.json")
+default_app = firebase_admin.initialize_app()
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/

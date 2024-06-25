@@ -5,14 +5,18 @@ import jwt
 from django.db.models import Sum
 from django.utils import timezone
 
-from game.models import Order
-from game.serializers import OrderSerializer, OrderListSerializer
+from game.models import Game
 from manager.models import Manager
 from manager.serializers import ManagerSerializer
-from tools.notifications import sendNotification
+from order.models import Order
+from order.serializers import OrderSerializer, OrderListSerializer
+from payment.models import Payment
+from payment.serializers import PaymentSerializer, PaymentCreateSerializer
+from tools.generate_token import check_token_manager
+from tools.notifications import send_notification_v2
 from tools.secure import checkAPI
-from user.models import Payment, User, Invite
-from user.serializers import PaymentSerializer, UserSerializer, PaymentCreateSerializer, \
+from user.models import User, Invite
+from user.serializers import UserSerializer, \
     InviteSerializer
 from rest_framework import status
 from rest_framework.exceptions import AuthenticationFailed
@@ -26,7 +30,7 @@ class CheckPaymentView(APIView):
     def check_permissions(self, request):
         if checkAPI(self.request.headers):
             raise AuthenticationFailed(detail="Siz dasturdan tashqaridasiz")
-        admin_id = checkToken(request.headers['Authorization'])
+        admin_id = check_token_manager(request.headers['Authorization'])
         if admin_id == -1:
             self.permission_denied(self.request)
 
@@ -53,17 +57,17 @@ class CheckPaymentView(APIView):
         json['status'] = int(request.data['status'])
         json['price'] = pay
         json['comment'] = comment
-        json['by_admin'] = checkToken(request.headers['Authorization'])
+        json['by_admin'] = check_token_manager(request.headers['Authorization'])
         serializer_pay = PaymentCreateSerializer(payment, data=json)
         serializer_pay.is_valid(raise_exception=True)
         serializer_pay.save()
         try:
             if int(request.data['status']) == 1:
-                sendNotification(serializer_user.data['notification_token'], "To'lov",
-                                 f"To'lov muvaffaqiyatli amalga oshirildi")
+                send_notification_v2(token=serializer_user.data['notification_token'], title="To'lov",
+                                     msg=f"To'lov muvaffaqiyatli amalga oshirildi")
             if int(request.data['status']) == 2:
-                sendNotification(serializer_user.data['notification_token'], "To'lov",
-                                 f"To'lov admin tomonidan rad etildi")
+                send_notification_v2(token=serializer_user.data['notification_token'], title="To'lov",
+                                     msg=f"To'lov admin tomonidan rad etildi")
         except:
             pass
         return Response({'update': "Success"}, status=status.HTTP_200_OK)
@@ -74,7 +78,7 @@ class CheckOrderView(APIView):
     def check_permissions(self, request):
         if checkAPI(self.request.headers):
             raise AuthenticationFailed(detail="Siz dasturdan tashqaridasiz")
-        admin_id = checkToken(request.headers['Authorization'])
+        admin_id = check_token_manager(request.headers['Authorization'])
         if admin_id == -1:
             self.permission_denied(self.request)
 
@@ -85,7 +89,7 @@ class CheckOrderView(APIView):
         order_json = dict(model_to_dict(order))
         if int(order_json['status']) != 0:
             return Response({'detail': "Buyurtma allaqachon amalga oshirilgan"}, status=status.HTTP_400_BAD_REQUEST)
-        admin_id = checkToken(request.headers['Authorization'])
+        admin_id = check_token_manager(request.headers['Authorization'])
         order_json['status'] = order_status
         order_json['by_admin'] = admin_id
         print(order_json)
@@ -118,8 +122,8 @@ class CheckOrderView(APIView):
                     update_invite = InviteSerializer(self_invite, data=invite_serializer)
                     if update_invite.is_valid():
                         update_invite.save()
-            sendNotification(user_json['notification_token'], 'Buyurtma',
-                             f"#{10000 + serializer_order.data['id']} raqamli buyurtma muvaffaqiyatli amalga oshirildi")
+            send_notification_v2(token=user_json['notification_token'], title='Buyurtma',
+                                 msg=f"#{10000 + serializer_order.data['id']} raqamli buyurtma muvaffaqiyatli amalga oshirildi")
         if order_status == 2:
             message = "Buyurtmada xatolik"
             user = User.objects.get(id=order_json['user'])
@@ -130,8 +134,8 @@ class CheckOrderView(APIView):
             serializer_user = UserSerializer(user, data=json_user)
             serializer_user.is_valid(raise_exception=True)
             serializer_user.save()
-            sendNotification(user_json['notification_token'], 'Buyurtma',
-                             f"#{10000 + serializer_order.data['id']} raqamli buyurtma admin tomonidan rad etildi")
+            send_notification_v2(token=user_json['notification_token'], title='Buyurtma',
+                                 msg=f"#{10000 + serializer_order.data['id']} raqamli buyurtma admin tomonidan rad etildi")
         return Response({'detail': message})
 
 
@@ -142,12 +146,12 @@ class PaymentListView(ListAPIView):
     def check_permissions(self, request):
         if checkAPI(self.request.headers):
             raise AuthenticationFailed(detail="Siz dasturdan tashqaridasiz")
-        admin_id = checkToken(request.headers['Authorization'])
+        admin_id = check_token_manager(request.headers['Authorization'])
         if admin_id == -1:
             self.permission_denied(self.request)
 
     def get_queryset(self):
-        today = timezone.now() 
+        today = timezone.now()
         current_month_start = today - timedelta(days=2)
         queryset = Payment.objects.filter(created_at__range=(current_month_start, today)).order_by(
             '-created_at')
@@ -186,16 +190,22 @@ class OrderListView(ListAPIView):
     def check_permissions(self, request):
         if checkAPI(self.request.headers):
             raise AuthenticationFailed(detail="Siz dasturdan tashqaridasiz")
-        admin_id = checkToken(request.headers['Authorization'])
+        admin_id = check_token_manager(request.headers['Authorization'])
         if admin_id == -1:
             self.permission_denied(self.request)
 
     def get_queryset(self):
+        admin_id = check_token_manager(self.request.headers['Authorization'])
         today = timezone.now()
-        current_month_start = today - timedelta(days=2)
-        queryset = Order.objects.filter(created_at__range=(current_month_start, today), ).order_by(
+        current_month_start = today - timedelta(days=40)
+        orders = Order.objects.filter(created_at__range=(current_month_start, today), ).order_by(
             '-created_at')
-        return queryset
+        games = Game.objects.filter(manager=admin_id).values('id')
+        game_id = []
+        for gid in games:
+            game_id.append(int(gid['id']))
+        orders = orders.filter(game__in=game_id)
+        return orders
 
 
 # Login for Admin
@@ -239,7 +249,7 @@ class GetAdmin(APIView):
 
     def get(self, request):
         token = self.request.headers['Authorization']
-        admin_id = checkToken(token)
+        admin_id = check_token_manager(token)
         if admin_id == -1:
             return Response({'detail': "Admin eskirgan"}, status=status.HTTP_400_BAD_REQUEST)
         man = Manager.objects.filter(id=int(admin_id)).first()
@@ -253,13 +263,13 @@ class Statics(APIView):
     def check_permissions(self, request):
         if checkAPI(self.request.headers):
             raise AuthenticationFailed(detail="Siz dasturdan tashqaridasiz")
-        admin_id = checkToken(request.headers['Authorization'])
+        admin_id = check_token_manager(request.headers['Authorization'])
         if admin_id == -1:
             self.permission_denied(self.request)
 
     def get(self, request):
         try:
-            today = timezone.now() + timedelta(hours=5)
+            today = timezone.now()
             # month income
             current_month_start = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
             current_month_end = (current_month_start + timezone.timedelta(days=32)).replace(day=1, microsecond=0)
@@ -298,16 +308,10 @@ class Statics(APIView):
             }
             return Response(response_data)
         except:
-
             return Response({'detail': "Xatolik"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UsersBalance(APIView):
     def get(self, request):
-        total_balance = User.objects.filter(role=0).aggregate(Sum('balance'))['balance__sum'] or 0
+        total_balance = User.objects.all().aggregate(Sum('balance'))['balance__sum'] or 0
         return Response({'total': total_balance})
-
-
-def checkToken(token):
-    code = jwt.decode(token, 'manager_secret_key', algorithms='HS256')
-    return int(code['id'])

@@ -27,7 +27,7 @@ class ListItemView(generics.ListAPIView):
     def get_queryset(self):
         game_id = self.request.query_params.get('game_id')
         if game_id:
-            return Item.objects.filter(game=game_id, is_archived=False).order_by('price')
+            return Item.objects.filter(game=game_id).order_by('price')
         raise NotAuthenticated("Xatolik")
 
 

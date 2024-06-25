@@ -4,15 +4,10 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('game', '0010_order_by_admin'),
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='order',
-            name='comment',
-            field=models.CharField(blank=True, max_length=255, null=True),
-        ),
+
     ]

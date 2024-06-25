@@ -1,5 +1,5 @@
 from django.contrib import admin
-from game.models import Game, Order, Item
+from game.models import Game, Item
 
 
 # Register your models here.
@@ -12,8 +12,8 @@ class GamesAdmin(admin.ModelAdmin):
 class ItemsAdmin(admin.ModelAdmin):
     list_display = ('id', 'game', 'price', 'cash', 'bonus', 'created_at')
 
-
-@admin.register(Order)
-class OrdersAdmin(admin.ModelAdmin):
-    list_display = ('id', 'game', 'user', 'cash', 'price', 'game_number','status','created_at')
-    search_fields = ('id','user__name', 'cash', 'price', 'game_number','created_at')
+#
+# @admin.register(Order)
+# class OrdersAdmin(admin.ModelAdmin):
+#     list_display = ('id', 'game', 'user', 'cash', 'price', 'game_number','status','created_at')
+#     search_fields = ('id','user__name', 'cash', 'price', 'game_number','created_at')

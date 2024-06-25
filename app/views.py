@@ -75,7 +75,13 @@ class RestTimeView(APIView):
                 'end': json['end_time'],
                 'working': status_time,
                 'status': json['status'],
-                'comment': json['comment']
+                'comment': json['comment'],
+                "is_payment": json['is_payment'],
+                "is_technical": json['is_technical'],
+                "is_partner": json['is_partner'],
+                "partner_comment": json['partner_comment'],
+                "partner_link": json['partner_link'],
+                "partner_button": json['partner_button']
             }
             return Response(response_json)
         except:

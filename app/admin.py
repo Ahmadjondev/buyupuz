@@ -21,7 +21,9 @@ class RedeemAdmin(admin.ModelAdmin):
 
 @admin.register(Working)
 class RestTimeAdmin(admin.ModelAdmin):
-    list_display = ('start_time', 'end_time')
+    list_display = (
+        'start_time', 'end_time', 'status', 'comment', 'is_payment', 'is_technical', 'is_partner', 'partner_link',
+        'partner_button')
 
 
 @admin.register(PaymentCard)

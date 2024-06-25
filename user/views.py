@@ -14,12 +14,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from tools.generate_token import generate_token_jwt, checkToken
-from tools.notifications import sendNotification
 from tools.secure import checkAPI
 
-from user.models import User, Payment, BlacklistedToken, Verification, Invite, CashbackOrder
-from user.serializers import UserSerializer, PaymentCreateSerializer, UserUpdateSerializer, \
-    VerifySerializer, InviteSerializer, PaymentSerializer, CashbackOrderSerializer
+from user.models import User, BlacklistedToken, Verification, Invite, CashbackOrder
+from user.serializers import UserSerializer, UserUpdateSerializer, \
+    VerifySerializer, InviteSerializer, CashbackOrderSerializer
 from django.core.mail import send_mail
 
 
@@ -219,6 +218,7 @@ class UpdateUserView(APIView):
         return Response(serializer.data)
 
 
+<<<<<<< HEAD
 class PaymentView(ListAPIView):
     serializer_class = PaymentSerializer
 
@@ -254,6 +254,8 @@ class PaymentView(ListAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+=======
+>>>>>>> 83f02bf1d5895129ed3daf81fc240ce14f987684
 class InviteStatView(APIView):
     def get(self, request):
         if checkAPI(self.request.headers):
@@ -293,7 +295,8 @@ class InviteCreateView(APIView):
 
             data = {
                 'user': user_id,
-                'code': random_code
+                'code': random_code,
+                'cashback': 0.00
             }
             serializer = InviteSerializer(data=data)
             serializer.is_valid(raise_exception=True)

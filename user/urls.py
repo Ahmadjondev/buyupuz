@@ -1,7 +1,6 @@
-from django.urls import path, include
-from .views import Register, Login, PaymentView, GetUser, UpdateUserView, Logout, VerifyView, ResendCodeView, \
+from django.urls import path
+from .views import Register, Login, GetUser, UpdateUserView, Logout, VerifyView, ResendCodeView, \
     InviteStatView, InviteCreateView, GoogleSign, CashbackOrdersView
-from rest_framework.routers import SimpleRouter
 
 urlpatterns = [
     path('register', Register.as_view()),
@@ -12,8 +11,6 @@ urlpatterns = [
     path('logout', Logout.as_view()),
     path('user', GetUser.as_view()),
     path('user/update', UpdateUserView.as_view()),
-    path('payments', PaymentView.as_view()),
-    path('payments/create', PaymentView.as_view()),
     path('invites', InviteStatView.as_view()),
     path('invites/create', InviteCreateView.as_view()),
     path('cashback', CashbackOrdersView.as_view()),  # create and list

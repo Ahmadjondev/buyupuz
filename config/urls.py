@@ -8,9 +8,8 @@ urlpatterns = [
                   path('v3/', include('user.urls')),
                   path('v3/', include('app.urls')),
                   path('v3/', include('game.urls')),
-                #   path('v2/', include('user.urls')),
-                #   path('v2/', include('app.urls')),
-                #   path('v2/', include('game.urls')),
+                  path('v3/', include('payment.urls')),
+                  path('v3/', include('order.urls')),
                   path('manager/', admin.site.urls),
                   path('', include('user.web_urls')),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
