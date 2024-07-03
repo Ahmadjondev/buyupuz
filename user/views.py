@@ -43,6 +43,8 @@ class Register(APIView):
 
 class GoogleSign(APIView):
     def post(self, request):
+        if checkAPI(self.request.headers):
+            return Response({'detail': "Siz dasturdan tashqaridasiz"}, status=status.HTTP_400_BAD_REQUEST)
         data = request.data
         name = data['name']
         email = data['email']
@@ -218,44 +220,6 @@ class UpdateUserView(APIView):
         return Response(serializer.data)
 
 
-<<<<<<< HEAD
-class PaymentView(ListAPIView):
-    serializer_class = PaymentSerializer
-
-    def check_permissions(self, request):
-        if checkAPI(self.request.headers):
-            return Response({'detail': "Siz dasturdan tashqaridasiz"}, status=status.HTTP_400_BAD_REQUEST)
-
-    def get_queryset(self):
-        token = self.request.headers['Authorization']
-        user_id = checkToken(token)
-        if user_id == -1:
-            raise NotAuthenticated(detail="Ro'yxatdan o'tilmagan")
-        payments = Payment.objects.filter(user_id=user_id).order_by('-id')
-
-        return payments
-
-    def post(self, request):
-        token = request.headers['Authorization']
-        user_id = checkToken(token)
-        if user_id == -1:
-            raise NotAuthenticated(detail="Ro'yxatdan o'tilmagan")
-        datas = {'price': self.request.data['price'],
-                 'screenshot': self.request.data['screenshot'],
-                 'user': user_id}
-        serializer = PaymentCreateSerializer(data=datas)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        try:
-            sendNotification("/topics/admin", f"To`lov qilindi",
-                             f"Foydalanuvchi to`lov qildi va hozir siz tasdiqlashingiz kerak",is_admin=True)
-        except:
-            pass
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
-=======
->>>>>>> 83f02bf1d5895129ed3daf81fc240ce14f987684
 class InviteStatView(APIView):
     def get(self, request):
         if checkAPI(self.request.headers):

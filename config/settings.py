@@ -10,9 +10,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-t86+cu9i8(glpq_-n&ro0yvskj)32+5ls%7tg8ef*x0*oi_jzz'
 
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ["*", "test.buyup.uz"]
+ALLOWED_HOSTS = ["mobile.buyup.uz"]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -70,7 +70,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'buyuptest',
+        'NAME': 'buyupuz',
         'USER': 'ahmadjon',
         'PASSWORD': '20040711',
         'HOST': 'localhost',

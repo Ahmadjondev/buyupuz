@@ -92,15 +92,13 @@ class CheckOrderView(APIView):
         admin_id = check_token_manager(request.headers['Authorization'])
         order_json['status'] = order_status
         order_json['by_admin'] = admin_id
-        print(order_json)
         serializer_order = OrderSerializer(order, data=order_json)
         serializer_order.is_valid(raise_exception=True)
         serializer_order.save()
         user_json = dict(model_to_dict(User.objects.get(id=serializer_order.data['user'])))
         message = ""
-
         if order_status == 1:
-            message = "Buyurtma bajrarildi!"
+            message = "Buyurtma bajarildi!"
             if user_json['invite_code'] is not None:
                 invite = Invite.objects.filter(code=user_json['invite_code']).first()
                 if invite:
@@ -196,10 +194,14 @@ class OrderListView(ListAPIView):
 
     def get_queryset(self):
         admin_id = check_token_manager(self.request.headers['Authorization'])
+        manager = model_to_dict(Manager.objects.get(id=admin_id))
+            
         today = timezone.now()
-        current_month_start = today - timedelta(days=40)
+        current_month_start = today - timedelta(days=10)
         orders = Order.objects.filter(created_at__range=(current_month_start, today), ).order_by(
             '-created_at')
+        if manager['is_superadmin']:
+            return orders
         games = Game.objects.filter(manager=admin_id).values('id')
         game_id = []
         for gid in games:

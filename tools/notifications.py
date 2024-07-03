@@ -67,8 +67,8 @@ def send_notification_v2(title, msg, token=None, topic=None, data=None, is_order
             "message": {
                 "topic": topic,
                 "notification": {
-                    "title": "Breaking News",
-                    "body": "New news story available."
+                    "title": title,
+                    "body": msg
                 },
                 "data": data
             }
@@ -78,8 +78,8 @@ def send_notification_v2(title, msg, token=None, topic=None, data=None, is_order
             "message": {
                 "token": token,
                 "notification": {
-                    "title": "Breaking News",
-                    "body": "New news story available."
+                    "title": title,
+                    "body": msg
                 },
                 "data": data
             }

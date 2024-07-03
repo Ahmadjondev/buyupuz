@@ -1,6 +1,6 @@
 from django.forms import model_to_dict
 from rest_framework import generics, status
-from rest_framework.exceptions import NotAuthenticated
+from rest_framework.exceptions import NotAuthenticated, APIException
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -59,6 +59,9 @@ class CreateOrderView(APIView):
 
 class ListOrderView(generics.ListAPIView):
     serializer_class = OrderListSerializer
+    def check_permissions(self, request):
+        if checkAPI(self.request.headers):
+            raise APIException({'detail': "Siz dasturdan tashqaridasiz"})
 
     def get_queryset(self):
         token = self.request.headers['Authorization']

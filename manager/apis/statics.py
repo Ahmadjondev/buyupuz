@@ -1,3 +1,4 @@
+from django.forms import model_to_dict
 from django.utils import timezone
 from datetime import datetime, timedelta
 
@@ -27,13 +28,16 @@ class OrderStatisticsView(APIView):
         admin_id = check_token_manager(auth_token)
         if admin_id == -1:
             raise NotAuthenticated(detail="Ro'yxatdan o'tilmagan")
+        # manjs = model_to_dict(Manager.objects.get(id=admin_id))
+        
         start_date = request.query_params.get('start_date')
         end_date = request.query_params.get('end_date')
         game_id = request.query_params.get('game_id')
         user_id = request.query_params.get('user_id')
         order_status = request.query_params.get('status')
         today = timezone.now()
-
+        # if not manjs['is_superadmin']:
+            # user_id = admin_id
         current_month_start = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
         current_month_end = (current_month_start + timezone.timedelta(days=32)).replace(day=1, microsecond=0)
 
@@ -46,7 +50,7 @@ class OrderStatisticsView(APIView):
             orders = orders.filter(game__id=game_id)
 
         if user_id:
-            orders = orders.filter(manager__id=admin_id)
+            orders = orders.filter(manager__id=user_id)
 
         if order_status is not None:
             orders = orders.filter(status=order_status)

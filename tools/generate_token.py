@@ -17,8 +17,8 @@ def generate_token_jwt(user_id):
 
 
 def check_token_manager(token):
-    code = jwt.decode(token, 'manager_secret_key', algorithms='HS256')
     try:
+        code = jwt.decode(token, 'manager_secret_key', algorithms='HS256')
         Manager.objects.get(id=int(code['id']))
         return int(code['id'])
     except:
