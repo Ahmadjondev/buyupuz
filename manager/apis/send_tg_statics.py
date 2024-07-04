@@ -1,10 +1,9 @@
 from django.db.models import Sum
 from datetime import datetime, timedelta
 
-from game.models import Order
+from game.models import Game, Order
 from user.models import User
 import requests
-
 
 def format_currency(amount):
     integer_part, fractional_part = str(amount).split('.')
@@ -15,7 +14,7 @@ def format_currency(amount):
     return formatted_amount
 
 
-def send_statics():
+def send_statics(): 
     bot_token = "6769633037:AAEHXLIzsEVrTVxPfJKhYmzYvWz6x1_mbOI"
     chat_id = "-1002039386599"
 
@@ -88,3 +87,31 @@ def send_statics():
                 'parse_mode': 'Markdown',
             },
         )
+
+def send_games_statics():
+    bot_token = "6769633037:AAEHXLIzsEVrTVxPfJKhYmzYvWz6x1_mbOI"
+    chat_id = "-1002039386599"
+    # time = datetime.now()
+
+    # today_date_start = time.replace(hour=0, minute=0, second=1, microsecond=0)
+    # today_date_end = time.replace(hour=23, minute=59, second=59, microsecond=59)
+    # games = Game.objects.filter(visible=True).values()
+    # orders = Order.objects.filter(status=1, created_at__range=(today_date_start, today_date_end))
+
+    # statics_for_games = ""
+
+    # for game in games:
+    #     orders_for_game = orders.filter(game=int(game['id']))
+    #     orders_amount = orders_for_game.filter(game=int(game['id'])).aggregate(Sum('price'))['price__sum'] or 0
+    #     statics_for_games += f"{game['name']}\nBuyurtma soni: {orders_for_game.count()}\nBuyurtmalar narxi: {format_currency(orders_amount)}\n-----------------"
+
+    api_url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
+    requests.post(
+            api_url,
+            data={
+                'chat_id': chat_id,
+                'text': 'statics_for_games',
+                'parse_mode': 'Markdown',
+            },
+        )    
+

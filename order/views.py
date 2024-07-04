@@ -42,7 +42,6 @@ class CreateOrderView(APIView):
         serializer.save()
 
         try:
-            print(json)
             game = Game.objects.get(id=json['game'])
             game_serializer = model_to_dict(game)
 

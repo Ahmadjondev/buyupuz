@@ -44,7 +44,7 @@ def sendNotification(token, title, msg, data=None,is_admin=None):
         print("Error")
 
 
-def send_notification_v2(title, msg, token=None, topic=None, data=None, is_order_or_payment=False):
+def send_notification_v2(title, msg, token=None, topic=None, data={}, is_order_or_payment=False):
     if is_order_or_payment or topic:
         try:
             bot_token = "7044795068:AAEv-d3QXACY_qnr_PAqagOnKgSpHdIfep4"
@@ -73,7 +73,7 @@ def send_notification_v2(title, msg, token=None, topic=None, data=None, is_order
                 "data": data
             }
         }
-    else:
+    if token:
         fcm_message = {
             "message": {
                 "token": token,
@@ -81,9 +81,10 @@ def send_notification_v2(title, msg, token=None, topic=None, data=None, is_order
                     "title": title,
                     "body": msg
                 },
-                "data": data
+                "data": {}
             }
         }
+    print(fcm_message)
     FCM_URL = "https://fcm.googleapis.com/v1/projects/buyupuz/messages:send"
     headers = {
         'Authorization': 'Bearer ' + _get_access_token(),
